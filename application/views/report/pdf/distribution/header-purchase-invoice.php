@@ -1,0 +1,115 @@
+<?php
+	include $base_url.'assets/lib/phpqrcode/qrlib.php';
+
+	$tempdir = "assets/images/qrcode/"; //Nama folder tempat menyimpan file qrcode
+    if (!file_exists($tempdir)) //Buat folder bername temp
+    mkdir($tempdir);
+
+    $filename_qrcode = str_replace('/', 'XX', $purchase_invoice_number);
+
+    //ambil logo
+    $logopath= $base_url.'assets/images/mmi/logo.png';
+
+	 //simpan file qrcode
+	 QRcode::png($filename_qrcode, $tempdir.''.$filename_qrcode.'.png', QR_ECLEVEL_H, 10, 4);
+
+	 // ambil file qrcode
+	 $QR = imagecreatefrompng($tempdir.''.$filename_qrcode.'.png');
+
+	 // memulai menggambar logo dalam file qrcode
+	 $logo = imagecreatefromstring(file_get_contents($logopath));
+	 
+	 imagecolortransparent($logo , imagecolorallocatealpha($logo , 0, 0, 0, 127));
+	 imagealphablending($logo , false);
+	 imagesavealpha($logo , true);
+
+	 $QR_width = imagesx($QR);
+	 $QR_height = imagesy($QR);
+
+	 $logo_width = imagesx($logo);
+	 $logo_height = imagesy($logo);
+
+	 // Scale logo to fit in the QR Code
+	 $logo_qr_width = $QR_width/3;
+	 $scale = $logo_width/$logo_qr_width;
+	 $logo_qr_height = $logo_height/$scale;
+
+	 imagecopyresampled($QR, $logo, $QR_width/2.75, $QR_height/2.75, 0, 0, $logo_qr_width, $logo_qr_height, $logo_width, $logo_height);
+
+	 // Simpan kode QR lagi, dengan logo di atasnya
+	 imagepng($QR,$tempdir.''.$filename_qrcode.'.png');
+
+?>
+<table autosize="1" width="100%" style="overflow: wrap">
+	<tr>
+		<td style="width:600px;">
+			<table>
+				<tr>
+					<td colspan="2">
+						<div style="font-size:28px; font-weight:bold;">
+							<?php echo $company_name; ?>
+						</div><br>
+						<div style="font-size:18px; padding-top:25px;">
+							<?php echo $company_address.' '.$company_city.' '.$company_postal_code; ?>
+						</div>
+						<div style="font-size:18px; padding-top:25px;">
+							<?php echo 'Phone : '.$company_phone.' Fax : '.$company_fax; ?>
+						</div>
+						<div style="font-size:18px; padding-top:25px;">
+							<?php echo 'NPWP : 10.869.463.8.055.000'; ?>
+						</div>
+					</td>		
+				</tr>
+				<tr>
+					<td colspan="2">&nbsp;</td>
+				</tr>
+				<tr>
+					<td style="width:50px; font-size:18px; vertical-align: top;">Vendor</td>
+					<td style="width:500px; font-size:18px; vertical-align: top; height: 140px; border: 1px solid black; padding-left: 5px;">
+						<div style="font-size:18px; font-weight:bold;"><?php echo $account_name; ?></div>
+						<div style="font-size:18px;">
+							<?php echo $main_address.' '.$city.' '.$postal_code; ?><br>
+							<?php echo 'Phone : '.$phone_1.' Fax : '.$fax; ?><br>
+							<?php echo 'Attn : '.$attn; ?>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</td>
+		<td style="width:10px;"></td>
+		<td style="width:440px; vertical-align:top; padding-top: 50px;">
+			<table>
+				<tr>
+					<td colspan="3"><div style="font-size:24px; font-weight:bold;">Purchase Invoice</div></td>
+				</tr>
+				<tr>
+					<td style="width:150px; height: 50px; border: 1px solid black; vertical-align: top; font-size: 18px;">Invoice Date</td>
+					<td style="width:150px; vertical-align: top;  top; font-size: 18px; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black; vertical-align: top;"><?php echo $purchase_invoice_date; ?></td>
+					<td rowspan="3" style="width:145px; vertical-align:top;"><img src="<?php echo $base_url.'assets/images/qrcode/'.$filename_qrcode.'.png'; ?>" style="width: 145px; height:145px;"></td>
+				</tr>
+				<tr>
+					<td style="width:150px; height: 50px; vertical-align: top; font-size: 18px; border-bottom: 1px solid black; border-right: 1px solid black; border-left: 1px solid black;">Invoice Number</td>
+					<td style="width:150px; vertical-align: top;  top; font-size: 18px; border-bottom: 1px solid black; border-right: 1px solid black; vertical-align: top;"><?php echo $purchase_invoice_number; ?></td>
+				</tr>
+				<tr>
+					<td style="width:150px; height: 50px; vertical-align: top; font-size: 18px; border-right: 1px solid black; border-left: 1px solid black;">Date Create</td>
+					<td style="width:150px; vertical-align: top;  top; font-size: 18px; border-right: 1px solid black; vertical-align: top;"><?php echo $create_date; ?></td>
+				</tr>
+			</table>
+			<table>
+				<tr>
+					<td style="width:125px; height: 70px; vertical-align: top; font-size: 14px; border-right: 1px solid black; border-left: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;" align="center">Invoice<br>(1x Asli, 1x Copy)<br>[ ]</td>
+					<td style="width:111px; vertical-align: top;  top; font-size: 14px; border-right: 1px solid black; vertical-align: top; border-top: 1px solid black; border-bottom: 1px solid black;" align="center">Faktur Pajak<br>(2x Asli)<br>[ ]</td>
+					<td style="width:118px; vertical-align: top; font-size: 14px; border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;" align="center">Delivery Order<br>(1x Asli)<br>[ ]</td>
+					<td style="width:118px; vertical-align: top;  top; font-size: 14px; border-right: 1px solid black; vertical-align: top; border-top: 1px solid black; border-bottom: 1px solid black;" align="center">Purchase Order<br>(1x Copy)<br>[ ]</td>
+				</tr>
+			</table>
+		</td>
+	</tr>	
+</table>
+<br>
+<table autosize="1" width="100%" style="overflow: wrap; color: white; font-size: 14px; font-weight:bold;">
+	<tr>
+		<td style="background-color: rgb(255, 51, 51); height: 30px; padding-left:10px;">INVOICE SUMARY</td>
+	</tr>
+</table>
